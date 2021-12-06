@@ -1,11 +1,12 @@
 extern crate image;
 
 mod teapot;
+mod cubemesh;
 
 use glium::{
     glutin::{
         event,
-        event::{Event, WindowEvent, DeviceEvent, VirtualKeyCode, KeyboardInput},
+        event::{Event, WindowEvent, VirtualKeyCode, KeyboardInput},
         event_loop::{EventLoop, ControlFlow},  
         window::WindowBuilder, 
         dpi::LogicalSize, 
@@ -13,7 +14,6 @@ use glium::{
     }, 
     Surface,
     Display, 
-    implement_vertex, 
     uniform,
     VertexBuffer, 
     index::PrimitiveType, 
@@ -35,27 +35,25 @@ fn main() {
 }
 
 fn event_loop(event_loop: EventLoop<()>, display: Display) {
-    let positions = VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
-    let mut t: f32 = -0.5;
-    let normals = VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
-    let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &teapot::INDICES).unwrap(); 
+    let positions = VertexBuffer::new(&display, &cubemesh::VERTICES).unwrap();
+    let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &cubemesh::INDICES).unwrap(); 
 
 
     let vertex_shader_src = r#"
         #version 150
 
         in vec3 position;
-        in vec3 normal;
-
-        out vec3 v_normal;
+        in vec4 color;
 
         uniform mat4 perspective;
         uniform mat4 view;
         uniform mat4 model;
 
+        out vec4 v_color;
+
         void main() {
+            v_color = color;
             mat4 modelview = view * model;
-            v_normal = transpose(inverse(mat3(modelview))) * normal;
             gl_Position = perspective * modelview * vec4(position, 1.0);
         }
     "#;
@@ -63,19 +61,20 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let fragment_shader_src = r#"
         #version 140
 
-        in vec3 v_normal;
+        in vec4 v_color;
+
         out vec4 color;
-        uniform vec3 u_light;
 
         void main() {
-            float brightness = dot(normalize(v_normal), normalize(u_light));
-            vec3 dark_color = vec3(0.6, 0.0, 0.0);
-            vec3 regular_color = vec3(1.0, 0.0, 0.0);
-            color = vec4(mix(dark_color, regular_color, brightness), 1.0);
+            color = v_color;
         }
     "#;
 
     let program = Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+
+    let mut t: f32 = -0.5;
+    let mut dx: f32 = 0.0;
+    let mut dy: f32 = 0.0;
 
     event_loop.run(move |ev, _, control_flow| {
         match ev {
@@ -89,6 +88,11 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
                             },
                             _ => return,
                         }
+                    },
+                    event::DeviceEvent::MouseMotion { delta, .. } => {
+                        let (x, y) = delta;
+                        dx += (x as f32)/100.0;
+                        dy -= (y as f32)/100.0;
                     },
                     _ => return,
                 }
@@ -140,9 +144,9 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
         };
 
         let model = [
-            [ 0.01, 0.0, 0.0, 0.0 ],
-            [ 0.0, 0.01, 0.0, 0.0 ],
-            [ 0.0, 0.0, 0.01, 0.0 ],
+            [ 1.0, 0.0, 0.0, 0.0 ],
+            [ 0.0, 1.0, 0.0, 0.0 ],
+            [ 0.0, 0.0, 1.0, 0.0 ],
             [ 0.0, 0.0, 2.0, 1.0f32 ]
         ];
 
@@ -152,17 +156,14 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
                 write: true,
                 .. Default::default() 
             },
-            // enables backface culling, not wanted on the pot
             //backface_culling: draw_parameters::BackfaceCullingMode::CullClockwise,
             .. Default::default()
         };
 
-        let light = [-0.1, 0.4, 0.9f32];
+        let view = view_matrix(&[2.0, -1.0, 1.0], &[dx, dy, 1.0], &[0.0, 1.0, 0.0]);
 
-        let view = view_matrix(&[2.0, -1.0, 1.0], &[-2.0, 1.0, 1.0], &[0.0, 1.0, 0.0]);
-
-        target.draw((&positions, &normals), &indices, &program, 
-            &uniform! { model: model, view: view, perspective: perspective, u_light: light }, &params).unwrap();
+        target.draw(&positions, &indices, &program, 
+            &uniform! { model: model, view: view, perspective: perspective }, &params).unwrap();
         target.finish().unwrap();
     });
 }
