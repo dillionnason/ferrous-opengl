@@ -65,18 +65,20 @@ pub const INDICES: [u16; 36] = [
     21, 23, 24,
 ]; 
 
-//#[derive(Copy, Clone)]
-//pub struct Normal {
-//    normal: (f32, f32, f32)
-//}
-//
-//implement_vertex!(Normal, normal);
-//
-//pub const _FACE_NORMALS: [Normal; 4] = [
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//];
+#[derive(Copy, Clone)]
+pub struct Normal {
+    normal: (f32, f32, f32, f32)
+}
+
+implement_vertex!(Normal, normal);
+
+pub const _FACE_NORMALS: [Normal; 6] = [
+    Normal { normal: _SOUTH },
+    Normal { normal: _NORTH },
+    Normal { normal: _EAST },
+    Normal { normal: _WEST },
+    Normal { normal: _UP },
+    Normal { normal: _DOWN },
+];
 
 
