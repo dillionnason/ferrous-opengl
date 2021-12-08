@@ -39,15 +39,15 @@ pub const VERTICES: [Vertex; 25] = [
     Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 1.0, 0.0, 1.0) }, //west (side)     // 15
     Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 1.0, 0.0, 1.0) }, //west (side)     // 16
 
-    Vertex { position: (-0.5,  0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 17
-    Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 18
-    Vertex { position: ( 0.5,  0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 19
-    Vertex { position: ( 0.5,  0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 20
+    Vertex { position: (-0.5,  0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 17
+    Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 18
+    Vertex { position: ( 0.5,  0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 19
+    Vertex { position: ( 0.5,  0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 20
 
-    Vertex { position: (-0.5, -0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 21
-    Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 22
-    Vertex { position: ( 0.5, -0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 23
-    Vertex { position: ( 0.5, -0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 24
+    Vertex { position: (-0.5, -0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 21
+    Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 22
+    Vertex { position: ( 0.5, -0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 23
+    Vertex { position: ( 0.5, -0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 24
 ];
 
 pub const INDICES: [u16; 36] = [
@@ -65,20 +65,20 @@ pub const INDICES: [u16; 36] = [
     21, 23, 24,
 ]; 
 
-#[derive(Copy, Clone)]
-pub struct Normal {
-    normal: (f32, f32, f32, f32)
-}
-
-implement_vertex!(Normal, normal);
-
-pub const _FACE_NORMALS: [Normal; 6] = [
-    Normal { normal: _SOUTH },
-    Normal { normal: _NORTH },
-    Normal { normal: _EAST },
-    Normal { normal: _WEST },
-    Normal { normal: _UP },
-    Normal { normal: _DOWN },
-];
+//#[derive(Copy, Clone)]
+//pub struct Normal {
+//    normal: (f32, f32, f32, f32)
+//}
+//
+//implement_vertex!(Normal, normal);
+//
+//pub const _FACE_NORMALS: [Normal; 6] = [
+//    Normal { normal: _SOUTH },
+//    Normal { normal: _NORTH },
+//    Normal { normal: _EAST },
+//    Normal { normal: _WEST },
+//    Normal { normal: _UP },
+//    Normal { normal: _DOWN },
+//];
 
 
