@@ -2,12 +2,15 @@
 A 3D game engine written in Rust using the OpenGL wrapper glium
 
 ## Building and running the project from source
+### Linux
 ```
 git clone https://github.com/dillionnason/ferrous-opengl
 cd ferrous-opengl
 cargo build --release
 ./target/release/ferrous-opengl
 ```
+### MacOS and Windows
+Haven't tested building on Windows yet, and I lack the hardware to test on MacOS at the time
 
 ## Currently planned features
 - Entity Component System
