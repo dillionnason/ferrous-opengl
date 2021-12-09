@@ -1,6 +1,5 @@
 extern crate glium;
 use glium::glutin::event::{self, VirtualKeyCode, KeyboardInput, ElementState};
-use glium::glutin::event::Event;
 use vecmath::{Vector3, vec3_cross, vec3_normalized_sub, vec3_scale, vec3_add};
 
 pub struct FirstPersonSettings {
@@ -63,12 +62,6 @@ impl Camera {
             keys: Vec::new(),
             velocity: 1.5f32,
             fast_scale: 5f32,
-        }
-    }
-
-    pub fn push_keys(&mut self, key: &VirtualKeyCode) {
-        if !self.keys.contains(key) {
-            self.keys.push(*key)
         }
     }
 
@@ -205,7 +198,6 @@ impl Camera {
             event::DeviceEvent::Key(KeyboardInput { state, virtual_keycode, .. }) => {
                 let virtual_keycode = virtual_keycode.unwrap();
                 match state {
-
                     ElementState::Pressed => {
                         if !self.keys.contains(&virtual_keycode) {
                             self.keys.push(virtual_keycode);

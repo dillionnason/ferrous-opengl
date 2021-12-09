@@ -19,7 +19,7 @@ use glium::{
     VertexBuffer, 
     index::PrimitiveType, 
     Program, 
-    IndexBuffer, DrawParameters, draw_parameters
+    IndexBuffer, DrawParameters, draw_parameters, implement_vertex
 };
 
 pub const WIDTH: f32 = 1280.0;
@@ -51,6 +51,15 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let positions = VertexBuffer::new(&display, &cubemesh::VERTICES).unwrap();
     let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &cubemesh::INDICES).unwrap(); 
     println!("Cubemesh Initialized");
+
+    let mut per_instance = {
+        #[derive(Copy, Clone)]
+        struct Attr {
+            world_position: (f32, f32, f32),
+        }
+
+        implement_vertex!(Attr, world_position);
+    };
 
     // shaders
     // TODO: move to their own file at some point
