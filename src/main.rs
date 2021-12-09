@@ -1,6 +1,8 @@
 mod cubemesh;
 mod camera;
 
+extern crate clock_ticks;
+
 // TODO: Clean up imports, maybe spread them out to where they are used
 use glium::{
     glutin::{
@@ -89,28 +91,36 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let mut camera = camera::Camera::new(HEIGHT, WIDTH);
     println!("Camera Initialized");
 
+    let mut previous_clock = clock_ticks::precise_time_ns();
+    
+    //display.gl_window().window().set_cursor_grab(true).unwrap();
+    //display.gl_window().window().set_cursor_visible(false);
+
     event_loop.run(move |ev, _, control_flow| {
+
+        let now = clock_ticks::precise_time_ns();
+        let dt = now - previous_clock;
+
         let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
         *control_flow = ControlFlow::WaitUntil(next_frame_time);
-
+        
         // update camera position
-        camera.update();
+        camera.update((dt as f32) / 1000000000f32);
 
         match ev {
             // TODO: eventually move to its own "input.rs" file
             Event::DeviceEvent { event, .. } => {
                 match event {
-                    event::DeviceEvent::Key(KeyboardInput { virtual_keycode, .. }) => {
-                        match virtual_keycode.unwrap() {
-                            VirtualKeyCode::Escape => {
-                                println!("Escape caught");
-                                *control_flow = ControlFlow::Exit;
-                                return;
-                            },
-                            _ => {},
-                        }
-                    },
+                    //event::DeviceEvent::Key(KeyboardInput { virtual_keycode, .. }) => {
+                    //    match virtual_keycode.unwrap() {
+                    //        VirtualKeyCode::Escape => {
+                    //            *control_flow = ControlFlow::Exit;
+                    //            return;
+                    //        },
+                    //        _ => {},
+                    //    }
+                    //},
                     event => camera.parse_input(&event),
                 }
             },
@@ -152,6 +162,8 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
             //backface_culling: draw_parameters::BackfaceCullingMode::CullClockwise,
             .. Default::default()
         };
+
+        previous_clock = now;
 
         // create the target and clear the color and depth buffers
         // draw the frame

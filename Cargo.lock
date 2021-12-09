@@ -131,6 +131,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "clock_ticks"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c49a90f58e73ac5f41ed0ac249861ceb5f0976db35fabc2b9c2c856916042d63"
+
+[[package]]
 name = "cocoa"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -448,6 +454,7 @@ checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 name = "ferrous-opengl"
 version = "0.0.1"
 dependencies = [
+ "clock_ticks",
  "glium",
  "image",
  "vecmath",

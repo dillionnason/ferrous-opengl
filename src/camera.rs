@@ -1,7 +1,7 @@
 extern crate glium;
 use glium::glutin::event::{self, VirtualKeyCode, KeyboardInput, ElementState};
 use glium::glutin::event::Event;
-use vecmath::{Vector3, vec3_cross, vec3_normalized_sub};
+use vecmath::{Vector3, vec3_cross, vec3_normalized_sub, vec3_scale, vec3_add};
 
 pub struct FirstPersonSettings {
     pub move_forward: VirtualKeyCode,
@@ -43,6 +43,8 @@ pub struct Camera {
     pitch: f32,
     settings: FirstPersonSettings,
     keys: Vec<VirtualKeyCode>,
+    velocity: f32,
+    fast_scale: f32, 
 }
 
 impl Camera {
@@ -59,6 +61,8 @@ impl Camera {
             pitch: 0f32,
             settings: FirstPersonSettings::keyboard_wasd(),
             keys: Vec::new(),
+            velocity: 1.5f32,
+            fast_scale: 5f32,
         }
     }
 
@@ -125,15 +129,16 @@ impl Camera {
         ] 
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, t: f32) {
         self.update_direction();
+        self.update_pos(t);
 
         // math debugging
         //print!("\x1B[2J\x1B[1;1H");
-        //println!("Mouse movement: [{:?}, {:?}]", x, y);
         //println!("dx, dy:         [{:?}, {:?}]", self.dx, self.dy);
         //println!("forward:        {:?}", self.forward);
         //println!("right:          {:?}", self.right);
+        //println!("{}", self.keys.len());
     }
 
     fn update_direction(&mut self) {
@@ -165,6 +170,34 @@ impl Camera {
 
     fn update_right(&mut self) {
         self.right = vec3_cross(self.up, self.forward);
+        self.dx = 0.0;
+        self.dy = 0.0;
+    }
+
+    fn update_pos(&mut self, t: f32) {
+        macro_rules! displace {
+            ($x:expr, $y:expr, $z:expr) => (
+                if self.keys.contains($z) {
+                    let displacment = vec3_scale($x, $y);
+                    self.position = vec3_add(displacment, self.position);
+                }
+            );
+        }
+
+        let mut dist = self.velocity * t;
+
+        if self.keys.contains(&self.settings.move_faster) {
+            dist *= self.fast_scale;
+        }
+
+        displace!(self.forward, -dist, &self.settings.move_backward);
+        displace!(self.forward, dist, &self.settings.move_forward);
+
+        displace!(self.right, dist, &self.settings.strafe_left);
+        displace!(self.right, -dist, &self.settings.strafe_right);
+
+        displace!(self.up, dist, &self.settings.fly_up);
+        displace!(self.up, -dist, &self.settings.fly_down);
     }
 
     pub fn parse_input(&mut self, e: &event::DeviceEvent) {
@@ -172,18 +205,20 @@ impl Camera {
             event::DeviceEvent::Key(KeyboardInput { state, virtual_keycode, .. }) => {
                 let virtual_keycode = virtual_keycode.unwrap();
                 match state {
+
                     ElementState::Pressed => {
                         if !self.keys.contains(&virtual_keycode) {
                             self.keys.push(virtual_keycode);
                         }
+                        println!("Key pressed!");
                     },
                     ElementState::Released => {
                         if self.keys.contains(&virtual_keycode) {
                             let i = self.keys.iter().position(|&r| r == virtual_keycode).unwrap();
                             self.keys.remove(i);
                         }
+                        println!("Key released!");
                     },
-                    _ => {},
                 }
             },
             event::DeviceEvent::MouseMotion { delta: (ref x, ref y) } => {
