@@ -8,13 +8,23 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, color);
 
-const _NORTH: (f32, f32, f32, f32) = (0.0, 1.0, 0.0, 1.0);
-const _SOUTH: (f32, f32, f32, f32) = (0.0, -1.0, 0.0, 1.0);
-const _EAST: (f32, f32, f32, f32) = (1.0, 0.0, 0.0, 1.0);
-const _WEST: (f32, f32, f32, f32) = (-1.0, 0.0, 0.0, 1.0);
-const _UP: (f32, f32, f32, f32) = (0.0, 0.0, 1.0, 1.0);
-const _DOWN: (f32, f32, f32, f32) = (0.0, 0.0, -1.0, 1.0);
+// face normals
+const _N: (f32, f32, f32, f32) = (0.0, 1.0, 0.0, 1.0);
+const _S: (f32, f32, f32, f32) = (0.0, -1.0, 0.0, 1.0);
+const _E: (f32, f32, f32, f32) = (1.0, 0.0, 0.0, 1.0);
+const _W: (f32, f32, f32, f32) = (-1.0, 0.0, 0.0, 1.0);
+const _U: (f32, f32, f32, f32) = (0.0, 0.0, 1.0, 1.0);
+const _D: (f32, f32, f32, f32) = (0.0, 0.0, -1.0, 1.0);
 
+// vertex normals
+const _SEU: (f32, f32, f32, f32) = (1.0, -1.0, 1.0, 1.0);
+const _SWU: (f32, f32, f32, f32) = (-1.0, -1.0, 1.0, 1.0);
+const _NEU: (f32, f32, f32, f32) = (1.0, 1.0, 1.0, 1.0);
+const _NWU: (f32, f32, f32, f32) = (-1.0, 1.0, 1.0, 1.0);
+const _SED: (f32, f32, f32, f32) = (1.0, -1.0, -1.0, 1.0);
+const _SWD: (f32, f32, f32, f32) = (-1.0, -1.0, -1.0, 1.0);
+const _NED: (f32, f32, f32, f32) = (1.0, 1.0, -1.0, 1.0);
+const _NWD: (f32, f32, f32, f32) = (-1.0, 1.0, -1.0, 1.0);
 
 pub const VERTICES: [Vertex; 25] = [
     Vertex { position: (0.0, 0.0, 0.0), color: (0.0, 0.0, 0.0, 0.0) }, //dummy vertex because i'm dumb
@@ -39,15 +49,15 @@ pub const VERTICES: [Vertex; 25] = [
     Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 1.0, 0.0, 1.0) }, //west (side)     // 15
     Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 1.0, 0.0, 1.0) }, //west (side)     // 16
 
-    Vertex { position: (-0.5,  0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 17
-    Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 18
-    Vertex { position: ( 0.5,  0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 19
-    Vertex { position: ( 0.5,  0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //top             // 20
+    Vertex { position: (-0.5,  0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 17
+    Vertex { position: (-0.5,  0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 18
+    Vertex { position: ( 0.5,  0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 19
+    Vertex { position: ( 0.5,  0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //top             // 20
 
-    Vertex { position: (-0.5, -0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 21
-    Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 22
-    Vertex { position: ( 0.5, -0.5, 1.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 23
-    Vertex { position: ( 0.5, -0.5, 0.0), color: (0.0, 1.0, 1.0, 1.0) }, //bottom          // 24
+    Vertex { position: (-0.5, -0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 21
+    Vertex { position: (-0.5, -0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 22
+    Vertex { position: ( 0.5, -0.5, 1.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 23
+    Vertex { position: ( 0.5, -0.5, 0.0), color: (0.0, 0.0, 1.0, 1.0) }, //bottom          // 24
 ];
 
 pub const INDICES: [u16; 36] = [
@@ -65,18 +75,5 @@ pub const INDICES: [u16; 36] = [
     21, 23, 24,
 ]; 
 
-//#[derive(Copy, Clone)]
-//pub struct Normal {
-//    normal: (f32, f32, f32)
-//}
-//
-//implement_vertex!(Normal, normal);
-//
-//pub const _FACE_NORMALS: [Normal; 4] = [
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//    Normal { normal: (0.0, 0.0, 0.0) },
-//];
 
 
