@@ -88,15 +88,13 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let program = Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
     println!("Shaders Initialized");
 
-    let camera = camera::Camera::new(HEIGHT, WIDTH);
+    let mut camera = camera::Camera::new(HEIGHT, WIDTH);
     println!("Camera Initialized");
 
     let mut previous_clock = clock_ticks::precise_time_ns();
     
     //display.gl_window().window().set_cursor_grab(true).unwrap();
     //display.gl_window().window().set_cursor_visible(false);
-
-    let mut camera = camera::Camera::new(HEIGHT, WIDTH); 
 
     event_loop.run(move |ev, _, control_flow| {
 

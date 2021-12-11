@@ -1,6 +1,6 @@
 extern crate glium;
 use glium::glutin::event::{self, VirtualKeyCode, KeyboardInput, ElementState};
-use vecmath::{Vector3, vec3_cross, vec3_normalized_sub, vec3_scale, vec3_add};
+use vecmath::{Vector3, vec3_cross, vec3_scale, vec3_add};
 
 pub struct FirstPersonSettings {
     pub move_forward: VirtualKeyCode,
@@ -63,12 +63,6 @@ impl Camera {
             velocity: 1.5f32,
             fast_scale: 5f32,
         }
-    }
-
-    // Orients the camera to look at a point.
-    pub fn look_at(&mut self, point: Vector3<f32>) {
-        self.forward = vec3_normalized_sub(self.position, point);
-        self.update_right();
     }
 
     pub fn perspective_matrix(&self) -> [[f32 ;4]; 4] {
@@ -202,14 +196,12 @@ impl Camera {
                         if !self.keys.contains(&virtual_keycode) {
                             self.keys.push(virtual_keycode);
                         }
-                        println!("Key pressed!");
                     },
                     ElementState::Released => {
                         if self.keys.contains(&virtual_keycode) {
                             let i = self.keys.iter().position(|&r| r == virtual_keycode).unwrap();
                             self.keys.remove(i);
                         }
-                        println!("Key released!");
                     },
                 }
             },
