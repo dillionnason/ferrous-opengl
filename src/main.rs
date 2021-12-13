@@ -1,5 +1,6 @@
 mod cubemesh;
 mod camera;
+mod chunkmesh;
 
 extern crate clock_ticks;
 
@@ -46,9 +47,11 @@ fn main() {
 }
 
 fn event_loop(event_loop: EventLoop<()>, display: Display) {
+    let mut chunk_mesh = chunkmesh::ChunkMesh::new();
+    chunk_mesh.generate_mesh();
     // load the cube buffers
     // TODO: add normals to the cubes and maybe some crude light data
-    let positions = VertexBuffer::new(&display, &cubemesh::VERTICES).unwrap();
+    let positions = VertexBuffer::new(&display, &chunk_mesh.vertices).unwrap();
     let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &cubemesh::INDICES).unwrap(); 
     println!("Cubemesh Initialized");
 
@@ -58,7 +61,6 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
         #version 150
 
         in vec3 position;
-        in vec4 color;
 
         uniform mat4 perspective;
         uniform mat4 view;
@@ -67,7 +69,6 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
         out vec4 v_color;
 
         void main() {
-            v_color = color;
             mat4 modelview = view * model;
             gl_Position = perspective * modelview * vec4(position, 1.0);
         }
@@ -76,12 +77,10 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let fragment_shader_src = r#"
         #version 140
 
-        in vec4 v_color;
-
         out vec4 color;
 
         void main() {
-            color = v_color;
+            color = vec4(1.0, 0.0, 0.0, 1.0);
         }
     "#;
 
