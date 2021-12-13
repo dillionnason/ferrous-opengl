@@ -1,6 +1,7 @@
 mod cubemesh;
 mod camera;
 mod chunkmesh;
+mod debug;
 
 extern crate clock_ticks;
 
@@ -20,11 +21,13 @@ use glium::{
     VertexBuffer, 
     index::PrimitiveType, 
     Program, 
-    IndexBuffer, DrawParameters, draw_parameters
+    IndexBuffer, 
+    DrawParameters, 
+    draw_parameters
 };
 
-pub const WIDTH: f32 = 1280.0;
-pub const HEIGHT: f32 = 720.0;
+pub const WIDTH: f32 = 1920.0;
+pub const HEIGHT: f32 = 1080.0;
 pub const TITLE: &'static str = "Ferrous OpenGL"; 
 
 fn init() -> (glium::Display, EventLoop<()>) {
@@ -90,8 +93,10 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let mut camera = camera::Camera::new(HEIGHT, WIDTH);
     println!("Camera Initialized");
 
+    let mut debug = debug::Debug::new();
+
     let mut previous_clock = clock_ticks::precise_time_ns();
-    
+   
     //display.gl_window().window().set_cursor_grab(true).unwrap();
     //display.gl_window().window().set_cursor_visible(false);
 
@@ -120,7 +125,10 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
                     //        _ => {},
                     //    }
                     //},
-                    event => camera.parse_input(&event),
+                    event => {
+                        camera.parse_input(&event);
+                        debug.parse_input(&event);
+                    }
                 }
             },
             // close the window if asked to
@@ -148,12 +156,15 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
             [ 0.0, 0.0, 3.0, 1.0f32 ]
         ];
 
+        let draw_mode = debug.get_draw_state();
+
         let params = DrawParameters {
             depth: glium::Depth { 
                 test: draw_parameters::DepthTest::IfLess, 
                 write: true,
                 .. Default::default() 
             },
+            polygon_mode: draw_mode,
             // TODO: Figure this out to avoid rendering inside of cube
             // go through indices to make sure all of the triangles are either CullClockwise or CullCounterClockwise 
             // south, north, top and bottom seem to render properly, 
