@@ -55,7 +55,7 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     // load the cube buffers
     // TODO: add normals to the cubes and maybe some crude light data
     let positions = VertexBuffer::new(&display, &chunk_mesh.vertices).unwrap();
-    let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &cubemesh::INDICES).unwrap(); 
+    let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &chunk_mesh.indices).unwrap(); 
     println!("Cubemesh Initialized");
 
     // shaders
@@ -63,27 +63,30 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let vertex_shader_src = r#"
         #version 150
 
-        in vec3 position;
+        in vec4 position;
 
         uniform mat4 perspective;
         uniform mat4 view;
         uniform mat4 model;
 
-        out vec4 v_color;
+        out vec4 v_position;
 
         void main() {
+            v_position = position;
             mat4 modelview = view * model;
-            gl_Position = perspective * modelview * vec4(position, 1.0);
+            gl_Position = perspective * modelview * position;
         }
     "#;
 
     let fragment_shader_src = r#"
         #version 140
 
+        in vec4 v_position;
+
         out vec4 color;
 
         void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
+            color = vec4(v_position);
         }
     "#;
 
