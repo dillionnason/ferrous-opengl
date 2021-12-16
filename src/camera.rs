@@ -50,10 +50,10 @@ impl Camera {
     pub fn new(height: f32, width: f32) -> Camera {
         Camera {
             aspect_ratio: height/width, 
-            position: [2.0, -1.0, 1.0],
+            position: [0.0, 2.0, 0.0],
             right:   [1f32, 0f32, 0f32],
             up:      [0f32, 1f32, 0f32],
-            forward: [-2f32, 1f32, 1f32],
+            forward: [0f32, 0f32, 1f32],
             dx: 0f64,
             dy: 0f64,
             yaw: 0f32,
@@ -205,9 +205,18 @@ impl Camera {
                     },
                 }
             },
-            event::DeviceEvent::MouseMotion { delta: (ref x, ref y) } => {
-                self.dx = *x;
-                self.dy = -y;
+            //event::DeviceEvent::MouseMotion { delta: (ref x, ref y) } => {
+            //    self.dx = *x;
+            //    self.dy = -y;
+            //},
+            _ => {},
+        }
+    }
+
+    pub fn parse_cursor(&mut self, e: &event::WindowEvent) {
+        match e {
+            event::WindowEvent::CursorMoved { position, ..} => {
+                
             },
             _ => {},
         }

@@ -1,3 +1,5 @@
+use glium::glutin::event_loop::ControlFlow;
+
 extern crate glium;
 
 pub struct Debug {
@@ -20,7 +22,7 @@ impl Debug {
         }
     }
 
-    pub fn parse_input(&mut self, e: &glium::glutin::event::DeviceEvent) {
+    pub fn parse_input(&mut self, e: &glium::glutin::event::DeviceEvent, control_flow: &mut ControlFlow) {
         match e {
             glium::glutin::event::DeviceEvent::Key(glium::glutin::event::KeyboardInput { state, virtual_keycode, .. }) => {
                 let virtual_keycode = virtual_keycode.unwrap();
@@ -36,6 +38,13 @@ impl Debug {
                             self.keys.remove(i);
                         }
                     }
+                }
+                match virtual_keycode {
+                    glium::glutin::event::VirtualKeyCode::Escape => {
+                            *control_flow = ControlFlow::Exit;
+                            return;
+                    },
+                    _ => {},
                 }
             },
             _ => (),

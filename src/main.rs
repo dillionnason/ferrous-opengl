@@ -4,6 +4,7 @@ mod chunkmesh;
 mod debug;
 
 extern crate clock_ticks;
+extern crate image;
 
 // TODO: Clean up imports, maybe spread them out to where they are used
 use glium::{
@@ -58,39 +59,20 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
     let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &chunk_mesh.indices).unwrap(); 
     println!("Cubemesh Initialized");
 
-    // shaders
-    // TODO: move to their own file at some point
-    let vertex_shader_src = r#"
-        #version 150
+    use std::io::Cursor;
+    let image = image::load(Cursor::new(&include_bytes!("textures/grass.png")),
+                image::ImageFormat::Png).unwrap().to_rgba8();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
+    println!("Texture Initialized");
 
-        in vec4 position;
-
-        uniform mat4 perspective;
-        uniform mat4 view;
-        uniform mat4 model;
-
-        out vec4 v_position;
-
-        void main() {
-            v_position = position;
-            mat4 modelview = view * model;
-            gl_Position = perspective * modelview * position;
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 140
-
-        in vec4 v_position;
-
-        out vec4 color;
-
-        void main() {
-            color = vec4(v_position);
-        }
-    "#;
-
-    let program = Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+    let program = Program::from_source(
+        &display, 
+        include_str!("shaders/vertex.glsl"), 
+        include_str!("shaders/fragment.glsl"),
+        None)
+        .unwrap();
     println!("Shaders Initialized");
 
     let mut camera = camera::Camera::new(HEIGHT, WIDTH);
@@ -100,8 +82,8 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
 
     let mut previous_clock = clock_ticks::precise_time_ns();
    
-    //display.gl_window().window().set_cursor_grab(true).unwrap();
-    //display.gl_window().window().set_cursor_visible(false);
+    display.gl_window().window().set_cursor_grab(true).unwrap();
+    display.gl_window().window().set_cursor_visible(false);
 
     event_loop.run(move |ev, _, control_flow| {
 
@@ -130,7 +112,7 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
                     //},
                     event => {
                         camera.parse_input(&event);
-                        debug.parse_input(&event);
+                        debug.parse_input(&event, control_flow);
                     }
                 }
             },
@@ -149,6 +131,8 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
             },
             _ => {},
         }
+
+        let _ = display.gl_window().window().set_cursor_position(glium::glutin::dpi::LogicalPosition::new(WIDTH/2f32, HEIGHT/2f32));
         
         let perspective = camera.perspective_matrix();
         let view = camera.view_matrix();
@@ -156,7 +140,7 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
             [ 1.0, 0.0, 0.0, 0.0 ],
             [ 0.0, 1.0, 0.0, 0.0 ],
             [ 0.0, 0.0, 1.0, 0.0 ],
-            [ 0.0, 0.0, 3.0, 1.0f32 ]
+            [ -16.0, -32.0, -16.0, 1.0f32 ]
         ];
 
         let draw_mode = debug.get_draw_state();
@@ -183,9 +167,8 @@ fn event_loop(event_loop: EventLoop<()>, display: Display) {
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 1.0, 1.0, 1.0), 1.0);
         target.draw(&positions, &indices, &program, 
-            &uniform! { model: model, view: view, perspective: perspective }, &params).unwrap();
+            &uniform! { model: model, view: view, perspective: perspective, tex: &texture }, &params).unwrap();
         target.finish().unwrap();
-
     });
 }
 

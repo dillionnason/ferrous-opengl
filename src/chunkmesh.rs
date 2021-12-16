@@ -1,63 +1,9 @@
-use glium::implement_vertex;
-
 extern crate glium;
 extern crate vecmath;
 
+use crate::cubemesh::*;
+
 const CHUNK_SIZE: usize = 32;
-
-#[derive(Clone, Copy)]
-pub struct Vertex {
-    position: [f32; 4],
-}
-
-implement_vertex!(Vertex, position);
-
-impl Vertex {
-    pub fn transform(&mut self, mat: [[f32; 4]; 4 ]) {
-        self.position = vecmath::col_mat4_transform(mat, self.position);
-    }
-}
-
-const _N: [Vertex;4] = [
-    Vertex { position: [0.0, 0.0, 1.0, 1.0] },  
-    Vertex { position: [0.0, 1.0, 1.0, 1.0] }, 
-    Vertex { position: [1.0, 1.0, 1.0, 1.0] }, 
-    Vertex { position: [1.0, 0.0, 1.0, 1.0] }, 
-];
-const _S: [Vertex;4] = [
-    Vertex { position: [0.0, 0.0, 0.0, 1.0] },    
-    Vertex { position: [0.0, 1.0, 0.0, 1.0] },    
-    Vertex { position: [1.0, 1.0, 0.0, 1.0] },    
-    Vertex { position: [1.0, 0.0, 0.0, 1.0] },  
-];
-const _E: [Vertex;4] = [
-    Vertex { position: [1.0, 1.0, 0.0, 1.0] },      
-    Vertex { position: [1.0, 0.0, 0.0, 1.0] },      
-    Vertex { position: [1.0, 0.0, 1.0, 1.0] },      
-    Vertex { position: [1.0, 1.0, 1.0, 1.0] },   
-];
-const _W: [Vertex;4] = [
-    Vertex { position: [0.0, 0.0, 0.0, 1.0] },      
-    Vertex { position: [0.0, 1.0, 0.0, 1.0] },      
-    Vertex { position: [0.0, 1.0, 1.0, 1.0] },      
-    Vertex { position: [0.0, 0.0, 1.0, 1.0] },    
-];
-const _T: [Vertex;4] = [
-    Vertex { position: [0.0, 1.0, 0.0, 1.0] },              
-    Vertex { position: [0.0, 1.0, 1.0, 1.0] },              
-    Vertex { position: [1.0, 1.0, 1.0, 1.0] },              
-    Vertex { position: [1.0, 1.0, 0.0, 1.0] },   
-];
-const _B: [Vertex;4] = [
-    Vertex { position: [0.0, 0.0, 0.0, 1.0] },           
-    Vertex { position: [0.0, 0.0, 1.0, 1.0] },           
-    Vertex { position: [1.0, 0.0, 1.0, 1.0] },           
-    Vertex { position: [1.0, 0.0, 0.0, 1.0] },   
-];
-
-
-const _INDICES: [u32; 6] = [0, 1, 2, 0, 2, 3];
-
 pub struct ChunkMesh {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>, 
@@ -108,54 +54,53 @@ impl ChunkMesh {
         z: usize
     ) 
     {
-        if z == 31 {
-            for vertex in _N {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
-        if z == 0 {
-            for vertex in _S {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
-        if y == 31 {
-            for vertex in _T {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
-        if y == 0 {
-            for vertex in _B {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
-        if x == 31 {
-            for vertex in _E {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
-        if  x == 0 {
-            for vertex in _W {
-                self.push_vertex(vertex, matrix);
-            }
-            self.push_indices(); 
-        }
+        // cast to signed ints to avoid underflow
+        let (x, y, z) = (x as i32, y as i32, z as i32);
+
+        // east face
+        if self.get_voxel(x+1, y, z) == 0 {
+            self.push_vertex(EAST, matrix);
+        }    
+
+        // west face
+        if self.get_voxel(x-1, y, z) == 0 {
+            self.push_vertex(WEST, matrix);
+        }    
+
+        // top face
+        if self.get_voxel(x, y+1, z) == 0 {
+            self.push_vertex(TOP, matrix);
+        }    
+
+        //bottom face
+        if self.get_voxel(x, y-1, z) == 0 {
+            self.push_vertex(BOTTOM, matrix);
+        }    
+
+        // north face (pls don't sue me)
+        if self.get_voxel(x, y, z+1) == 0 {
+            self.push_vertex(NORTH, matrix);
+        }    
+
+        //south face
+        if self.get_voxel(x, y, z-1) == 0 {
+            self.push_vertex(SOUTH, matrix);
+        }    
     }
 
-    fn push_vertex (&mut self, vertex: Vertex, matrix: vecmath::Matrix4<f32>) {
-        let mut vertex = vertex.clone();
-        vertex.transform(matrix);
-        self.vertices.push(vertex);
+    fn push_vertex (&mut self, face: [Vertex;4], matrix: vecmath::Matrix4<f32>) {
+        for vertex in face {
+            let mut vertex = vertex.clone();
+            vertex.transform(matrix);
+            self.vertices.push(vertex);
+        }
+        self.push_indices();
     }
 
     fn push_indices(&mut self) {
-        for i in 0..6 {
+        for _i in 0..6 {
             let last_index = self.get_last_index();
-            for index in _INDICES {
+            for index in INDICES {
                 self.indices.push(index + last_index);
             }
         }
@@ -171,6 +116,17 @@ impl ChunkMesh {
         let mut last_index = last_index.clone();
         last_index += 1;
         last_index
+    }
+
+    // this is a safe function that protects against out of bounds errors
+    fn get_voxel(&self, x: i32, y: i32, z: i32) -> i8 {
+        if x < 0 || y < 0 || z < 0 {
+            return 0;
+        }
+        if x > 31 || y > 31 || z > 31 {
+            return 0;
+        }
+        self.voxel_map[x as usize][y as usize][z as usize]
     }
 }
 

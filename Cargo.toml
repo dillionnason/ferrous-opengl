@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 glium = "0.30.2"
 vecmath = "1.0.0"
+image = "*"
 clock_ticks = "0.1.1"
 noise = "0.7.0"

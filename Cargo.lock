@@ -456,6 +456,7 @@ version = "0.0.1"
 dependencies = [
  "clock_ticks",
  "glium",
+ "image",
  "noise",
  "vecmath",
 ]
