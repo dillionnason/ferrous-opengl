@@ -1,5 +1,5 @@
 # ferrous-opengl
-A 3D game engine written in Rust using the OpenGL wrapper glium
+A simple 3d renderer experiment, written in Rust with glium.
 
 ## Building and running the project from source
 ### Linux
@@ -11,12 +11,6 @@ cargo build --release
 ```
 ### MacOS and Windows
 Haven't tested building on Windows yet, and I lack the hardware to test on MacOS at the time
-
-## Currently planned features
-- Entity Component System
-- Debugging Tools
-- Rendering optimizations
-- Potentially other APIs (Vulkan)
 
 ## Guides and references used in this project
 - [Tutorial: Writing a tiny Entity Component System in Rust](https://ianjk.com/ecs-in-rust/)
